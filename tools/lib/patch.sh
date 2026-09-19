@@ -124,8 +124,16 @@ validate_patch_bundle() {
   log "Validated upstream player bundle sha256=$actual"
 }
 
+unpatch_hosts_if_present() {
+  for f in "$HOSTS_SYSTEM" "$HOSTS_JAIL"; do
+    [ -f "$f" ] && unpatch_hosts_helper "$f"
+  done
+}
+
 do_patch() {
   require_root
+  # Validate against the real upstream, not our own override from a previous start
+  unpatch_hosts_if_present
   validate_patch_bundle
   log "patching target=$TARGET_DIR"
   patch_default_conf
